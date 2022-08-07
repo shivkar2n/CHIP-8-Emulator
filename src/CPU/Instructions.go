@@ -53,7 +53,7 @@ func SEVxVy(s *State, opCode [2]byte) {
 func SNEVxVy(s *State, opCode [2]byte) {
 	x := helpers.ParseOpcode(opCode)["x"]
 	y := helpers.ParseOpcode(opCode)["y"]
-	if s.V[x] == s.V[y] {
+	if s.V[x] != s.V[y] {
 		s.IncrementPC()
 	}
 }
@@ -136,7 +136,6 @@ func SUBVxVy(s *State, opCode [2]byte) {
 	y := helpers.ParseOpcode(opCode)["y"]
 	diff := int(s.V[x]) - int(s.V[y])
 	if diff < 0x00 {
-		diff = 0xff
 		s.V[0xf] = byte(0x00)
 	} else {
 		s.V[0xf] = byte(0x01)
@@ -193,6 +192,7 @@ func DISPLAY(s *State, opCode [2]byte) {
 	vy := int(s.V[y])
 	loc := int(binary.BigEndian.Uint16(s.IR[:]))
 	sprite := s.Memory[loc : loc+n]
+	s.V[0xf] = 0
 	Display.Display(vx, vy, n, sprite)
 }
 
