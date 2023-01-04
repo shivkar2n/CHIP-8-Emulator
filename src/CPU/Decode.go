@@ -24,7 +24,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 	switch opCode0 {
 	case 0x0000:
 		if opCode == 0x00e0 {
-			fmt.Printf("CLS\n")
+			//fmt.Printf("CLS\n")
 			CLS(s)
 		} else if opCode == 0x00ee {
 			fmt.Printf("RET\n")
@@ -34,7 +34,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 		}
 
 	case 0x1000:
-		fmt.Printf("JP %x\n", nnn)
+		//fmt.Printf("JP %x\n", nnn)
 		JUMP(s, opCodeSlice)
 
 	case 0x2000:
@@ -51,11 +51,11 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 		fmt.Printf("SE V%x, V%x\n", x, y)
 
 	case 0x6000:
-		fmt.Printf("LD V%x, %x\n", x, nn)
+		//fmt.Printf("LD V%x, %x\n", x, nn)
 		LD(s, opCodeSlice)
 
 	case 0x7000:
-		fmt.Printf("ADD V%x, %x\n", x, nn)
+		//fmt.Printf("ADD V%x, %x\n", x, nn)
 		ADD(s, opCodeSlice)
 
 	case 0x8000:
@@ -92,7 +92,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 		fmt.Printf("SNE V%x, V%x\n", x, y)
 
 	case 0xa000:
-		fmt.Printf("LD I, %x\n", nnn)
+		//fmt.Printf("LD I, %x\n", nnn)
 		SETIR(s, opCodeSlice)
 
 	case 0xb000:
@@ -102,7 +102,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 		fmt.Printf("RND V%x, %x\n", x, nn)
 
 	case 0xd000:
-		fmt.Printf("DRW V%x, V%x, %x\n", x, y, n)
+		//fmt.Printf("DRW V%x, V%x, %x\n", x, y, n)
 		DISPLAY(s, opCodeSlice)
 
 	case 0xe000:

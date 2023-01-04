@@ -1,33 +1,33 @@
 package Display
 
-var Screen [32][64]bool
+var Screen [64][32]bool
 
 func XOR(x bool, y bool) bool {
 	return (x || y) && !(x && y)
 }
 
 func Display(x int, y int, n int, sprite []byte) { // Draw pixels from image buffer
-	x = x & 31
-	y = y & 63
+	x = x & 63
+	y = y & 31
 	for i := 0; i < n; i++ {
-		if x+i == 32 {
+		if y+i == 32 {
 			break
 		}
 		for j := 0; j < 8; j++ {
-			if y+j == 64 {
+			if x+j == 64 {
 				break
 			} else if sprite[i]>>(8-j)&0x01 == 0x01 {
-				Screen[x+i][y+j] = XOR(Screen[x+i][y+j], true)
+				Screen[x+j][y+i] = XOR(Screen[x+j][y+i], true)
 			} else {
-				Screen[x+i][y+j] = XOR(Screen[x+i][y+j], false)
+				Screen[x+j][y+i] = XOR(Screen[x+j][y+i], false)
 			}
 		}
 	}
 }
 
 func ClrScrn() {
-	for i := 0; i < 32; i++ {
-		for j := 0; j < 64; j++ {
+	for i := 0; i < 64; i++ {
+		for j := 0; j < 32; j++ {
 			Screen[i][j] = false
 		}
 	}

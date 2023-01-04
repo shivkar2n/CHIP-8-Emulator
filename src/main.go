@@ -35,20 +35,12 @@ var s = new(CPU.State)
 
 // Functions {{{ //
 func InitPixels() { // Initialize pixel grid
-	for i := 0; i < NoPixelsPerCol; i++ {
+	for i := 0; i < NoPixelsPerRow; i++ {
 		for j := 0; j < NoPixelsPerCol; j++ {
-			rects[NoPixelsPerCol*i+j] = sdl.Rect{
+			fmt.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
+
+			rects[NoPixelsPerRow*j+i] = sdl.Rect{
 				X: int32(i * PixelWidth),
-				Y: int32(j * PixelHeight),
-				W: PixelWidth,
-				H: PixelHeight,
-			}
-		}
-	}
-	for i := 0; i < NoPixelsPerCol; i++ {
-		for j := 0; j < NoPixelsPerCol; j++ {
-			rects[1024+NoPixelsPerCol*i+j] = sdl.Rect{
-				X: WindowWidth/2 + int32(i*PixelWidth),
 				Y: int32(j * PixelHeight),
 				W: PixelWidth,
 				H: PixelHeight,
@@ -107,7 +99,7 @@ func run() int {
 	running := true
 	for running {
 
-		s.Print()
+		//s.Print()
 		Instruction = s.InstructionFetch()
 		s.IncrementPC()
 		s.InstructionDecode(Instruction)
@@ -130,8 +122,8 @@ func run() int {
 		for i, rect := range rects { // Render pixels on window
 			func(i int) {
 				sdl.Do(func() {
-					posX := i % NoPixelsPerCol
-					posY := i / NoPixelsPerCol
+					posX := i % NoPixelsPerRow
+					posY := i / NoPixelsPerRow
 					if Display.Screen[posX][posY] {
 						renderer.SetDrawColor(0xd8, 0xde, 0xe9, 0x00)
 					} else {
