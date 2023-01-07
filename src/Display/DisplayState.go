@@ -16,7 +16,7 @@ func Display(x int, y int, n int, sprite []byte) { // Draw pixels from image buf
 		for j := 0; j < 8; j++ {
 			if x+j == 64 {
 				break
-			} else if sprite[i]>>(8-j)&0x01 == 0x01 {
+			} else if sprite[i]>>(7-j)&0x01 == 0x01 {
 				Screen[x+j][y+i] = XOR(Screen[x+j][y+i], true)
 			} else {
 				Screen[x+j][y+i] = XOR(Screen[x+j][y+i], false)
@@ -25,7 +25,7 @@ func Display(x int, y int, n int, sprite []byte) { // Draw pixels from image buf
 	}
 }
 
-func ClrScrn() {
+func ClrScrn() { // Clear all pixels on screen
 	for i := 0; i < 64; i++ {
 		for j := 0; j < 32; j++ {
 			Screen[i][j] = false

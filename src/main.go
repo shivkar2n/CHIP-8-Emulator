@@ -26,6 +26,8 @@ const (
 	NumRects    = 2048
 )
 
+var FgColor = [4]uint8{0xd8, 0xde, 0xe9, 0x00}
+var BgColor = [4]uint8{0x2e, 0x34, 0x40, 0x00}
 var rects [NumRects]sdl.Rect
 var runningMutex sync.Mutex
 var Instruction [2]byte
@@ -125,9 +127,9 @@ func run() int {
 					posX := i % NoPixelsPerRow
 					posY := i / NoPixelsPerRow
 					if Display.Screen[posX][posY] {
-						renderer.SetDrawColor(0xd8, 0xde, 0xe9, 0x00)
+						renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
 					} else {
-						renderer.SetDrawColor(0x2e, 0x34, 0x40, 0x00)
+						renderer.SetDrawColor(BgColor[0], BgColor[1], BgColor[2], BgColor[3])
 					}
 					renderer.DrawRect(&rect)
 					renderer.FillRect(&rect)
@@ -137,7 +139,7 @@ func run() int {
 
 		sdl.Do(func() {
 			renderer.Present()
-			sdl.Delay(1000 / FrameRate)
+			sdl.Delay(100 / FrameRate)
 		})
 		// }}} Rendering on screen //
 
