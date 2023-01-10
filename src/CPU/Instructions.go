@@ -192,6 +192,18 @@ func LDVxDT(s *State, opCode [2]byte) {
 	s.V[x] = s.DelayTimer
 }
 
+//func LDVxK(s *State, opCode [2]byte) {
+//    x := int(opCode[0]) & 0x0f
+//    s.DecrementPC()
+//    loop := true
+//    for loop {
+//        if KeyPressed {
+//            loop = false
+//            s.V[x] = byte(KeyPressed.val)
+//        }
+//    }
+//}
+
 func LDDTVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	s.DelayTimer = s.V[x]
@@ -223,3 +235,33 @@ func ADDI(s *State, opCode [2]byte) {
 //        s.IncrementPC()
 //    }
 //}
+
+func LDFVx(s *State, opCode [2]byte) {
+	x := int(opCode[0]) & 0x0f
+	char := int(s.V[x]) & 0x0f
+	s.IR[0] = byte((80 + 5*(0xf-char)) >> 4)
+	s.IR[1] = byte(80 + 5*(0xf-char))
+}
+
+func LDBVx(s *State, opCode [2]byte) {
+	IR := int(binary.BigEndian.Uint16(s.IR[:]))
+	x := int(opCode[0]) & 0x0f
+	n := int(s.V[x])
+	s.Memory[IR] = byte(n / 100)
+	s.Memory[IR+1] = byte(n / 10)
+	s.Memory[IR+2] = byte(n % 10)
+}
+
+func LDIVx(s *State, opCode [2]byte) {
+	IR := int(binary.BigEndian.Uint16(s.IR[:]))
+	for i := 0x0; i <= 0xf; i++ {
+		s.Memory[IR+i] = s.V[i]
+	}
+}
+
+func LDVxI(s *State, opCode [2]byte) {
+	IR := int(binary.BigEndian.Uint16(s.IR[:]))
+	for i := 0x0; i <= 0xf; i++ {
+		s.V[i] = s.Memory[IR+i]
+	}
+}

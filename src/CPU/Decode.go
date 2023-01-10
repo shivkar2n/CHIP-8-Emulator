@@ -16,7 +16,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 	n := int(opcodeBytes) & 0x000f
 	nn := int(opcodeBytes) & 0x00ff
 	nnn := int(opcodeBytes) & 0x0fff
-	x := int(opcodeBytes) & 0x0f00 >> 8
+	//x := int(opcodeBytes) & 0x0f00 >> 8
 	//y := int(opcodeBytes) & 0x00f0 >> 4
 	opCode0 := int(opcodeBytes) & 0xf000
 	opCode := int(opcodeBytes)
@@ -110,7 +110,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 			LDVxDT(s, opCodeSlice)
 
 		} else if nn == 0x0a {
-			fmt.Printf("LD V%x, K\n", x)
+			//LDVxK(s,opCodeSlice)
 
 		} else if nn == 0x15 {
 			LDDTVx(s, opCodeSlice)
@@ -122,16 +122,16 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 			ADDI(s, opCodeSlice)
 
 		} else if nn == 0x29 {
-			fmt.Printf("LD F, V%x\n", x)
+			LDFVx(s, opCodeSlice)
 
 		} else if nn == 0x33 {
-			fmt.Printf("LD B, V%x\n", x)
+			LDBVx(s, opCodeSlice)
 
 		} else if nn == 0x55 {
-			fmt.Printf("LD [I], V%x\n", x)
+			LDIVx(s, opCodeSlice)
 
 		} else if nn == 0x65 {
-			fmt.Printf("LD V%x, [I]\n", x)
+			LDVxI(s, opCodeSlice)
 		}
 	}
 }

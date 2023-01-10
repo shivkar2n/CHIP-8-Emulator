@@ -36,6 +36,13 @@ func (s *State) IncrementPC() {
 	s.PC = buf
 }
 
+func (s *State) DecrementPC() {
+	buf := [2]byte{}
+	newPC := int(s.PC[0])*256 + int(s.PC[1]) - 2
+	buf[0], buf[1] = byte(newPC>>8), byte(newPC&0x00ff)
+	s.PC = buf
+}
+
 func (s *State) Print() { // Print contents of CPU State
 	fmt.Printf("\n------CPU STATE------\n")
 	//fmt.Println("Memory:\n")
