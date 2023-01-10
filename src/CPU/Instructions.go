@@ -99,25 +99,25 @@ func LDVxVy(s *State, opCode [2]byte) {
 func OR(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	s.V[x] = byte(s.V[x] | s.V[y])
+	s.V[x] = byte(int(s.V[x]) | int(s.V[y]))
 }
 
 func AND(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	s.V[x] = byte(s.V[x] & s.V[y])
+	s.V[x] = byte(int(s.V[x]) & int(s.V[y]))
 }
 
 func XOR(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	s.V[x] = byte(s.V[x] ^ s.V[y])
+	s.V[x] = byte(int(s.V[x]) ^ int(s.V[y]))
 }
 
 func ADDVxVy(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	sum := s.V[x] + s.V[y]
+	sum := int(s.V[x]) + int(s.V[y])
 	if sum > 0xff {
 		sum = sum & 0xff
 		s.V[0xf] = byte(0x01)
@@ -130,7 +130,7 @@ func ADDVxVy(s *State, opCode [2]byte) {
 func SUBVxVy(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	diff := s.V[x] - s.V[y]
+	diff := int(s.V[x]) - int(s.V[y])
 	if diff < 0x00 {
 		diff = 0xff
 		s.V[0xf] = byte(0x00)
@@ -143,7 +143,7 @@ func SUBVxVy(s *State, opCode [2]byte) {
 func SUBVyVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	y := (int(opCode[1]) >> 4) & 0x0f
-	diff := s.V[y] - s.V[x]
+	diff := int(s.V[y]) - int(s.V[x])
 	if diff < 0x00 {
 		diff = 0xff
 		s.V[0xf] = byte(0x00)
@@ -155,17 +155,22 @@ func SUBVyVx(s *State, opCode [2]byte) {
 
 func SHR(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
-	//y := (int(opCode[1]) >> 4) & 0x0f
-	//s.V[x] = s.V[y]
+	if int(s.V[x])&0x01 == 0x01 {
+		s.V[0xf] = byte(0x01)
+	} else {
+		s.V[0xf] = byte(0x00)
+	}
 	s.V[0xf] = s.V[x] & 0x01
 	s.V[x] = s.V[x] >> 1
 }
 
 func SHL(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
-	//y := (int(opCode[1]) >> 4) & 0x0f
-	//s.V[x] = s.V[y]
-	s.V[0xf] = s.V[x] & 0x80
+	if int(s.V[x])&0x80 == 0x80 {
+		s.V[0xf] = byte(0x01)
+	} else {
+		s.V[0xf] = byte(0x00)
+	}
 	s.V[x] = s.V[x] << 1
 }
 
@@ -217,7 +222,7 @@ func LDSTVx(s *State, opCode [2]byte) {
 func ADDI(s *State, opCode [2]byte) {
 	I := int(binary.BigEndian.Uint16(s.IR[:]))
 	x := int(opCode[0]) & 0x0f
-	I = (I + x) & 0xffff
+	I = (I + int(s.V[x])) & 0xffff
 	s.IR[0] = byte(I >> 8)
 	s.IR[1] = byte(I & 0xff)
 }
@@ -249,7 +254,7 @@ func LDBVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	n := int(s.V[x])
 	s.Memory[IR] = byte(n / 100)
-	s.Memory[IR+1] = byte(n / 10)
+	s.Memory[IR+1] = byte((n / 10) % 10)
 	s.Memory[IR+2] = byte(n % 10)
 }
 

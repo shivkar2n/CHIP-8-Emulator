@@ -39,7 +39,7 @@ var s = new(CPU.State)
 func InitPixels() { // Initialize pixel grid
 	for i := 0; i < NoPixelsPerRow; i++ {
 		for j := 0; j < NoPixelsPerCol; j++ {
-			fmt.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
+			//fmt.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
 
 			rects[NoPixelsPerRow*j+i] = sdl.Rect{
 				X: int32(i * PixelWidth),
