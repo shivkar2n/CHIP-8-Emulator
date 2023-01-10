@@ -239,8 +239,9 @@ func ADDI(s *State, opCode [2]byte) {
 func LDFVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
 	char := int(s.V[x]) & 0x0f
-	s.IR[0] = byte((80 + 5*(0xf-char)) >> 4)
-	s.IR[1] = byte(80 + 5*(0xf-char))
+	addr := 80 + 5*(char)
+	s.IR[0] = byte(addr >> 8)
+	s.IR[1] = byte(addr & 0xff)
 }
 
 func LDBVx(s *State, opCode [2]byte) {
@@ -254,14 +255,16 @@ func LDBVx(s *State, opCode [2]byte) {
 
 func LDIVx(s *State, opCode [2]byte) {
 	IR := int(binary.BigEndian.Uint16(s.IR[:]))
-	for i := 0x0; i <= 0xf; i++ {
+	x := int(opCode[0]) & 0x0f
+	for i := 0x0; i <= x; i++ {
 		s.Memory[IR+i] = s.V[i]
 	}
 }
 
 func LDVxI(s *State, opCode [2]byte) {
 	IR := int(binary.BigEndian.Uint16(s.IR[:]))
-	for i := 0x0; i <= 0xf; i++ {
+	x := int(opCode[0]) & 0x0f
+	for i := 0; i <= x; i++ {
 		s.V[i] = s.Memory[IR+i]
 	}
 }
