@@ -10,7 +10,7 @@ import (
 	//"github.com/shivkar2n/Chip8-Emulator/helpers"
 )
 
-func (s *State) InstructionDecode(opCodeSlice [2]byte) {
+func (s *State) InstructionDecode(opCodeSlice [2]byte, keyboardState []uint8) {
 	opcodeBytes := binary.BigEndian.Uint16(opCodeSlice[:])
 
 	n := int(opcodeBytes) & 0x000f
@@ -99,7 +99,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 
 	case 0xe000:
 		if nn == 0x009e {
-			//SKP(s,opCodeSlice)
+			SKP(s, opCodeSlice, keyboardState)
 
 		} else if nn == 0x00a1 {
 			//SKNP(s,opCodeSlice)
@@ -110,7 +110,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte) {
 			LDVxDT(s, opCodeSlice)
 
 		} else if nn == 0x0a {
-			//LDVxK(s,opCodeSlice)
+			LDVxK(s, opCodeSlice, keyboardState)
 
 		} else if nn == 0x15 {
 			LDDTVx(s, opCodeSlice)

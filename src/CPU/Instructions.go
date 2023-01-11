@@ -2,9 +2,11 @@ package CPU
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math/rand"
 
 	"github.com/shivkar2n/Chip8-Emulator/Display"
+	"github.com/shivkar2n/Chip8-Emulator/helpers"
 )
 
 func CLS(s *State) {
@@ -197,17 +199,19 @@ func LDVxDT(s *State, opCode [2]byte) {
 	s.V[x] = s.DelayTimer
 }
 
-//func LDVxK(s *State, opCode [2]byte) {
-//    x := int(opCode[0]) & 0x0f
-//    s.DecrementPC()
-//    loop := true
-//    for loop {
-//        if KeyPressed {
-//            loop = false
-//            s.V[x] = byte(KeyPressed.val)
-//        }
-//    }
-//}
+func LDVxK(s *State, opCode [2]byte, keyboardState []uint8) {
+	x := int(opCode[0]) & 0x0f
+	s.DecrementPC()
+	loop := true
+	for loop {
+		val := helpers.KeyPressed(keyboardState)
+		if val != byte(0xff) {
+			loop = false
+			s.V[x] = val
+
+		}
+	}
+}
 
 func LDDTVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f
@@ -227,19 +231,23 @@ func ADDI(s *State, opCode [2]byte) {
 	s.IR[1] = byte(I & 0xff)
 }
 
-//func SKP(s *State, opCode [2]byte) {
-//    x := int(opCode[0]) & 0x0f
-//    if KeyPressed == s.V[x] {
-//        s.IncrementPC()
-//    }
-//}
+func SKP(s *State, opCode [2]byte, keyboardState []uint8) {
+	x := int(opCode[0]) & 0x0f
+	if helpers.KeyPressed(keyboardState) == byte(0xff) {
+		fmt.Println("Nothing pressed!")
+		return
+	} else if helpers.KeyPressed(keyboardState) == s.V[x] {
+		fmt.Println(s.V[x], " pressed!")
+		s.IncrementPC()
+	}
+}
 
-//func SKNP(s *State, opCode [2]byte) {
-//    x := int(opCode[0]) & 0x0f
-//    if KeyPressed != s.V[x] {
-//        s.IncrementPC()
-//    }
-//}
+func SKNP(s *State, opCode [2]byte, keyboardState []uint8) {
+	x := int(opCode[0]) & 0x0f
+	if helpers.KeyPressed(keyboardState) != s.V[x] {
+		s.IncrementPC()
+	}
+}
 
 func LDFVx(s *State, opCode [2]byte) {
 	x := int(opCode[0]) & 0x0f

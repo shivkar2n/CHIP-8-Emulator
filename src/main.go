@@ -8,6 +8,7 @@ import (
 
 	"github.com/shivkar2n/Chip8-Emulator/CPU"
 	"github.com/shivkar2n/Chip8-Emulator/Display"
+	"github.com/shivkar2n/Chip8-Emulator/helpers"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -36,7 +37,8 @@ var s = new(CPU.State)
 // }}} Basic Configuration //
 
 // Functions {{{ //
-func InitPixels() { // Initialize pixel grid
+// Initialize pixel grid
+func InitPixels() {
 	for i := 0; i < NoPixelsPerRow; i++ {
 		for j := 0; j < NoPixelsPerCol; j++ {
 			//fmt.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
@@ -51,6 +53,23 @@ func InitPixels() { // Initialize pixel grid
 	}
 }
 
+// Listen for keypress event
+func checkKeyboardEvent(running *bool) {
+	*running = true
+	for mapkey, key := range helpers.KeypadMap {
+		var i uint8
+		if mapkey == '1' || mapkey == '2' || mapkey == '3' || mapkey == '4' {
+			i = uint8(mapkey) - uint8('1') + 30
+		} else {
+			i = uint8(mapkey) - uint8('a') + 4
+		}
+		state := sdl.GetKeyboardState()[i]
+		if state == 1 {
+			fmt.Printf("Key pressed: %x\n", key)
+		}
+	}
+}
+
 // }}} Functions //
 
 // Main Event Loop Function {{{ //
@@ -59,6 +78,7 @@ func run() int {
 	var window *sdl.Window
 	var renderer *sdl.Renderer
 	var err error
+	var running bool
 
 	sdl.Do(func() {
 		window, err = sdl.CreateWindow(WindowTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_OPENGL)
@@ -98,13 +118,19 @@ func run() int {
 	s.LoadROM()                // Load rom into memory
 
 	// SDL Loop {{{ //
-	running := true
+	running = true
 	for running {
 
+		// Fetch and decode instructions {{{ //
 		//s.Print()
 		Instruction = s.InstructionFetch()
 		s.IncrementPC()
-		s.InstructionDecode(Instruction)
+		s.InstructionDecode(Instruction, sdl.GetKeyboardState())
+		// }}} Fetch and decode instructions //
+
+		// Listen for key-events {{{ //
+		checkKeyboardEvent(&running)
+		// }}} Listen for key eventts //
 
 		// Rendering on screen {{{ //
 		sdl.Do(func() { // Initialize window
