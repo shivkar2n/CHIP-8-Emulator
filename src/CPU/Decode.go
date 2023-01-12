@@ -102,7 +102,7 @@ func (s *State) InstructionDecode(opCodeSlice [2]byte, keyboardState []uint8) {
 			SKP(s, opCodeSlice, keyboardState)
 
 		} else if nn == 0x00a1 {
-			//SKNP(s,opCodeSlice)
+			SKNP(s, opCodeSlice, keyboardState)
 		}
 
 	case 0xf000:

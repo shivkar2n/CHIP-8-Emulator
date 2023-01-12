@@ -43,6 +43,18 @@ func (s *State) DecrementPC() {
 	s.PC = buf
 }
 
+func (s *State) DecrementDelayTimer() {
+	if int(s.DelayTimer) > 0 {
+		s.DelayTimer = byte(int(s.DelayTimer - 1))
+	}
+}
+
+func (s *State) DecrementSoundTimer() {
+	if int(s.SoundTimer) > 0 {
+		s.SoundTimer = byte(int(s.SoundTimer - 1))
+	}
+}
+
 func (s *State) Print() { // Print contents of CPU State
 	fmt.Printf("\n------CPU STATE------\n")
 	//fmt.Println("Memory:\n")

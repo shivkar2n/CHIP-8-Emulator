@@ -8,7 +8,6 @@ import (
 
 	"github.com/shivkar2n/Chip8-Emulator/CPU"
 	"github.com/shivkar2n/Chip8-Emulator/Display"
-	"github.com/shivkar2n/Chip8-Emulator/helpers"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -53,23 +52,6 @@ func InitPixels() {
 	}
 }
 
-// Listen for keypress event
-func checkKeyboardEvent(running *bool) {
-	*running = true
-	for mapkey, key := range helpers.KeypadMap {
-		var i uint8
-		if mapkey == '1' || mapkey == '2' || mapkey == '3' || mapkey == '4' {
-			i = uint8(mapkey) - uint8('1') + 30
-		} else {
-			i = uint8(mapkey) - uint8('a') + 4
-		}
-		state := sdl.GetKeyboardState()[i]
-		if state == 1 {
-			fmt.Printf("Key pressed: %x\n", key)
-		}
-	}
-}
-
 // }}} Functions //
 
 // Main Event Loop Function {{{ //
@@ -80,35 +62,25 @@ func run() int {
 	var err error
 	var running bool
 
-	sdl.Do(func() {
-		window, err = sdl.CreateWindow(WindowTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_OPENGL)
-	})
+	window, err = sdl.CreateWindow(WindowTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_OPENGL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
 		return 1
 	}
 	defer func() {
-		sdl.Do(func() {
-			window.Destroy()
-		})
+		window.Destroy()
 	}()
 
-	sdl.Do(func() {
-		renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	})
+	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "Failed to create renderer: %s\n", err)
 		return 2
 	}
 	defer func() {
-		sdl.Do(func() {
-			renderer.Destroy()
-		})
+		renderer.Destroy()
 	}()
 
-	sdl.Do(func() {
-		renderer.Clear()
-	})
+	renderer.Clear()
 
 	InitPixels()
 	// }}} Initialize SDL //
@@ -128,47 +100,40 @@ func run() int {
 		s.InstructionDecode(Instruction, sdl.GetKeyboardState())
 		// }}} Fetch and decode instructions //
 
-		// Listen for key-events {{{ //
-		checkKeyboardEvent(&running)
-		// }}} Listen for key eventts //
-
 		// Rendering on screen {{{ //
-		sdl.Do(func() { // Initialize window
-			for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-				switch event.(type) {
-				case *sdl.QuitEvent:
-					runningMutex.Lock()
-					running = false
-					runningMutex.Unlock()
-				}
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				runningMutex.Lock()
+				running = false
+				runningMutex.Unlock()
 			}
-			renderer.Clear()
-			renderer.SetDrawColor(0, 0, 0, 0x20)
-			renderer.FillRect(&sdl.Rect{0, 0, WindowWidth, WindowHeight})
-		})
+		}
+		renderer.Clear()
+		renderer.SetDrawColor(0, 0, 0, 0x20)
+		renderer.FillRect(&sdl.Rect{0, 0, WindowWidth, WindowHeight})
 
 		for i, rect := range rects { // Render pixels on window
 			func(i int) {
-				sdl.Do(func() {
-					posX := i % NoPixelsPerRow
-					posY := i / NoPixelsPerRow
-					if Display.Screen[posX][posY] {
-						renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
-					} else {
-						renderer.SetDrawColor(BgColor[0], BgColor[1], BgColor[2], BgColor[3])
-					}
-					renderer.DrawRect(&rect)
-					renderer.FillRect(&rect)
-				})
+				posX := i % NoPixelsPerRow
+				posY := i / NoPixelsPerRow
+				if Display.Screen[posX][posY] {
+					renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
+				} else {
+					renderer.SetDrawColor(BgColor[0], BgColor[1], BgColor[2], BgColor[3])
+				}
+				renderer.DrawRect(&rect)
+				renderer.FillRect(&rect)
 			}(i)
 		}
-
-		sdl.Do(func() {
-			renderer.Present()
-			sdl.Delay(100 / FrameRate)
-		})
+		renderer.Present()
+		sdl.Delay(5)
 		// }}} Rendering on screen //
 
+		// Decrement sound, delay timer {{{ //
+		s.DecrementDelayTimer()
+		s.DecrementSoundTimer()
+		// }}} Decrement sound, display timer //
 	}
 	// }}} SDL Loop //
 
