@@ -55,6 +55,13 @@ func (s *State) DecrementSoundTimer() {
 	}
 }
 
+func (s *State) PlaySound() bool {
+	if int(s.SoundTimer) > 0 {
+		return true
+	}
+	return false
+}
+
 func (s *State) Print() { // Print contents of CPU State
 	fmt.Printf("\n------CPU STATE------\n")
 	//fmt.Println("Memory:\n")

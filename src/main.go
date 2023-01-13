@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	_ "fmt"
+	"log"
 	"os"
 	"sync"
 
 	"github.com/shivkar2n/Chip8-Emulator/CPU"
 	"github.com/shivkar2n/Chip8-Emulator/Display"
+	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -40,7 +41,7 @@ var s = new(CPU.State)
 func InitPixels() {
 	for i := 0; i < NoPixelsPerRow; i++ {
 		for j := 0; j < NoPixelsPerCol; j++ {
-			//fmt.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
+			//log.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
 
 			rects[NoPixelsPerRow*j+i] = sdl.Rect{
 				X: int32(i * PixelWidth),
@@ -62,9 +63,26 @@ func run() int {
 	var err error
 	var running bool
 
+	// Initialize audio {{{ //
+	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
+		log.Println(err)
+	}
+	defer sdl.Quit()
+
+	if err := mix.Init(mix.INIT_MP3); err != nil {
+		log.Println(err)
+	}
+	defer mix.Quit()
+
+	if err := mix.OpenAudio(22050, mix.DEFAULT_FORMAT, 2, 4096); err != nil {
+		log.Println(err)
+	}
+	defer mix.CloseAudio()
+	// }}} Initialize audio //
+
 	window, err = sdl.CreateWindow(WindowTitle, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, WindowWidth, WindowHeight, sdl.WINDOW_OPENGL)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
+		log.Fatalln("Failed to create window: ", err)
 		return 1
 	}
 	defer func() {
@@ -73,7 +91,7 @@ func run() int {
 
 	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
-		fmt.Fprint(os.Stderr, "Failed to create renderer: %s\n", err)
+		log.Fatalln("Failed to create renderer: ", err)
 		return 2
 	}
 	defer func() {
@@ -127,12 +145,20 @@ func run() int {
 			}(i)
 		}
 		renderer.Present()
-		sdl.Delay(5)
+		sdl.Delay(100 / FrameRate)
 		// }}} Rendering on screen //
 
 		// Decrement sound, delay timer {{{ //
 		s.DecrementDelayTimer()
 		s.DecrementSoundTimer()
+
+		// Play sound
+		music, _ := mix.LoadMUS("../assets/sounds/beep.mp3")
+		music.Play(1)
+		if s.PlaySound() {
+			sdl.Delay(0)
+			music.Free()
+		}
 		// }}} Decrement sound, display timer //
 	}
 	// }}} SDL Loop //
