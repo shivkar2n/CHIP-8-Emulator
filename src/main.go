@@ -53,6 +53,18 @@ func InitPixels() {
 	}
 }
 
+func GetFgRects(rects [NumRects]sdl.Rect) []sdl.Rect {
+	FgRects := make([]sdl.Rect, NumRects, NumRects)
+	for i, rect := range rects {
+		posX := i % NoPixelsPerRow
+		posY := i / NoPixelsPerRow
+		if Display.Screen[posX][posY] {
+			FgRects = append(FgRects, rect)
+		}
+	}
+	return FgRects
+}
+
 // }}} Functions //
 
 // Main Event Loop Function {{{ //
@@ -128,24 +140,20 @@ func run() int {
 			}
 		}
 		renderer.Clear()
-		renderer.SetDrawColor(0, 0, 0, 0x20)
+
+		// Rendering window
+		renderer.SetDrawColor(BgColor[0], BgColor[1], BgColor[2], BgColor[3])
 		renderer.FillRect(&sdl.Rect{0, 0, WindowWidth, WindowHeight})
 
-		for i, rect := range rects { // Render pixels on window
-			func(i int) {
-				posX := i % NoPixelsPerRow
-				posY := i / NoPixelsPerRow
-				if Display.Screen[posX][posY] {
-					renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
-				} else {
-					renderer.SetDrawColor(BgColor[0], BgColor[1], BgColor[2], BgColor[3])
-				}
-				renderer.DrawRect(&rect)
-				renderer.FillRect(&rect)
-			}(i)
-		}
+		// Rendering pixels on background
+		FgRects := GetFgRects(rects)
+		renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
+		renderer.DrawRects(FgRects)
+		renderer.FillRects(FgRects)
+
 		renderer.Present()
-		sdl.Delay(100 / FrameRate)
+		renderer.RenderSetVSync(true)
+		sdl.Delay(0)
 		// }}} Rendering on screen //
 
 		// Decrement sound, delay timer {{{ //
