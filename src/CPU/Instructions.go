@@ -185,6 +185,7 @@ func RND(s *State, opCode [2]byte) {
 }
 
 func DISPLAY(s *State, opCode [2]byte) {
+	var res bool = false
 	x := helpers.ParseOpcode(opCode)["x"]
 	y := helpers.ParseOpcode(opCode)["y"]
 	n := helpers.ParseOpcode(opCode)["n"]
@@ -192,8 +193,12 @@ func DISPLAY(s *State, opCode [2]byte) {
 	vy := int(s.V[y])
 	loc := int(binary.BigEndian.Uint16(s.IR[:]))
 	sprite := s.Memory[loc : loc+n]
-	s.V[0xf] = 0
-	Display.Display(vx, vy, n, sprite)
+	Display.Display(vx, vy, n, sprite, &res)
+	if res {
+		s.V[0xf] = byte(0x01)
+	} else {
+		s.V[0xf] = byte(0x00)
+	}
 }
 
 func LDVxDT(s *State, opCode [2]byte) {
