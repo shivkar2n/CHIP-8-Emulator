@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  emulator:
+    image: chip8-emu-golang
+    container_name: chip8-emu
+    env_file: .env
+    build: .
+    volumes:
+      - ${X11_SOCKET}:${X11_SOCKET}
+      - ${XAUTHORITY}:/root/.Xauthority
+      - ./roms:/app/roms/
+    network_mode: host
+    command: /app/build/Chip8-Emulator /app/roms/${ROM}

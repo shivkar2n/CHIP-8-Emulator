@@ -30,8 +30,9 @@ I followed [this](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/) writ
 
 
 ### Docker
-To run with docker rename `.env.example` to `.env`
-
+To run with docker rename `.env.example` to `.env`. Only tested with unix based systems that use X11 display-server, audio is not yet supported
 ```bash
+xhost + # Allow connections from any host
 docker-compose up -d
+xhost - # Change permissions to default 
 ```
