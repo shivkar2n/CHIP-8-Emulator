@@ -7,65 +7,32 @@ import (
 	"sync"
 
 	"github.com/shivkar2n/Chip8-Emulator/CPU"
-	"github.com/shivkar2n/Chip8-Emulator/Display"
+	"github.com/shivkar2n/Chip8-Emulator/helpers"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 // Basic Configuration {{{ //
 const (
-	WindowTitle    = "Chip8 Emulator"
-	WindowWidth    = 960
-	WindowHeight   = 480
-	NoPixelsPerCol = 32
-	NoPixelsPerRow = 64
-
-	FrameRate = 60
-
-	PixelWidth  = 15
-	PixelHeight = 15
-	NumRects    = 2048
+	WindowTitle    = helpers.WindowTitle
+	WindowWidth    = helpers.WindowWidth
+	WindowHeight   = helpers.WindowHeight
+	NoPixelsPerCol = helpers.NoPixelsPerCol
+	NoPixelsPerRow = helpers.NoPixelsPerRow
+	FrameRate      = helpers.FrameRate
+	PixelWidth     = helpers.PixelWidth
+	PixelHeight    = helpers.PixelHeight
+	NumRects       = helpers.NumRects
 )
 
 var FgColor = [4]uint8{0xd8, 0xde, 0xe9, 0x00}
 var BgColor = [4]uint8{0x2e, 0x34, 0x40, 0x00}
-var rects [NumRects]sdl.Rect
+var rects [NumRects]sdl.Rect = helpers.InitPixels()
 var runningMutex sync.Mutex
 var Instruction [2]byte
 var s = new(CPU.State)
 
 // }}} Basic Configuration //
-
-// Functions {{{ //
-// Initialize pixel grid
-func InitPixels() {
-	for i := 0; i < NoPixelsPerRow; i++ {
-		for j := 0; j < NoPixelsPerCol; j++ {
-			//log.Printf("(%d,%d) -> %d\n", i, j, NoPixelsPerRow*j+i)
-
-			rects[NoPixelsPerRow*j+i] = sdl.Rect{
-				X: int32(i * PixelWidth),
-				Y: int32(j * PixelHeight),
-				W: PixelWidth,
-				H: PixelHeight,
-			}
-		}
-	}
-}
-
-func GetFgRects(rects [NumRects]sdl.Rect) []sdl.Rect {
-	FgRects := make([]sdl.Rect, NumRects, NumRects)
-	for i, rect := range rects {
-		posX := i % NoPixelsPerRow
-		posY := i / NoPixelsPerRow
-		if Display.Screen[posX][posY] {
-			FgRects = append(FgRects, rect)
-		}
-	}
-	return FgRects
-}
-
-// }}} Functions //
 
 // Main Event Loop Function {{{ //
 func run() int {
@@ -111,8 +78,6 @@ func run() int {
 	}()
 
 	renderer.Clear()
-
-	InitPixels()
 	// }}} Initialize SDL //
 
 	s.PC = [2]byte{0x02, 0x00} // Initialize PC to beginning of rom
@@ -146,7 +111,7 @@ func run() int {
 		renderer.FillRect(&sdl.Rect{0, 0, WindowWidth, WindowHeight})
 
 		// Rendering pixels on background
-		FgRects := GetFgRects(rects)
+		FgRects := helpers.GetFgRects(rects)
 		renderer.SetDrawColor(FgColor[0], FgColor[1], FgColor[2], FgColor[3])
 		renderer.DrawRects(FgRects)
 		renderer.FillRects(FgRects)
